@@ -1,14 +1,17 @@
 # kazenoeye
 This is an add-on that works with Ashita v4.
-It adds a UI to display the status of enemy monsters and displays it in front of the model.
-![screenshot](https://github.com/kazenohito/kazenoeye/blob/main/sample1.png)
+It adds a UI to display the status of mobs and displays it in front of the model.
+
 ![screenshot](https://github.com/kazenohito/kazenoeye/blob/main/sample2.png)
+![screenshot](https://github.com/kazenohito/kazenoeye/blob/main/sample1.png)
+
 
 ## How to install:
-Please download the latest version from the release page.
-Extract the kazenoeye folder into the Ashita4/addons folder.
-After extraction, load the add-on by entering the following command.
+- Please download the latest version from the release page.
+- Extract the kazenoeye folder into the Ashita4/addons folder.
+- After extraction, load the add-on by entering the following command.
 `/addon load kazenoeye`
+
 
 ## Commands
 `/kazneoeye` Open the settings screen.
