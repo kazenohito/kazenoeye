@@ -1,6 +1,8 @@
 # kazenoeye
 This is an add-on that works with Ashita v4.
 It adds a UI to display the status of enemy monsters and displays it in front of the model.
+![screenshot](https://github.com/kazenohito/kazenoeye/blob/main/sample1.png)
+![screenshot](https://github.com/kazenohito/kazenoeye/blob/main/sample2.png)
 
 ## How to install:
 Please download the latest version from the release page.
