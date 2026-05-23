@@ -17,9 +17,9 @@ This add-on contains code and resources derived from the following:
 Thanks to the developers.
 
 - Addon: XIUI
-- Author: Team XIUI
-- Source: https://github.com/tirem/XIUI
+    - Author: Team XIUI
+    - Source: https://github.com/tirem/XIUI
 
 - Addon: targetlines
-- Author: Jyouya
-- Source: https://github.com/Jyouya/targetlines
+    - Author: Jyouya
+    - Source: https://github.com/Jyouya/targetlines
