@@ -2,7 +2,7 @@ addon.name      = 'kazenoeye';
 addon.author    = 'kazenohito';
 addon.version   = '1.2.7';
 addon.desc      = 'Display information about Entity within visible range';
--- addon.link      = 'https://ashitaxi.com/';
+addon.link      = 'https://github.com/kazenohito/kazenoeye';
 
 require('common');
 local imgui = require('imgui');
