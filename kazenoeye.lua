@@ -1,6 +1,6 @@
 addon.name      = 'kazenoeye';
 addon.author    = 'kazenohito';
-addon.version   = '1.2.7';
+addon.version   = '1.2.8';
 addon.desc      = 'Display information about Entity within visible range';
 addon.link      = 'https://github.com/kazenohito/kazenoeye';
 
@@ -371,6 +371,17 @@ function GetIndexFromId(id)
 end
 
 --[[
+* Registers a callback for the settings to monitor for character switches.
+--]]
+settings.register('settings', 'settings_update', function (s)
+    if (s ~= nil) then
+        config = s;
+    end
+
+    settings.save();
+end);
+
+--[[
 * event: load
 * desc : Event called when the addon is being loaded.
 --]]
@@ -383,6 +394,10 @@ ashita.events.register('load', 'load_cb', function ()
         local namae = "bufficon" .. i
         texture.loadImage(namae, path .. "\\icons\\" .. i .. ".png");
     end
+end);
+
+ashita.events.register('unload', 'unload_cb', function ()
+    settings.save();
 end);
 
 ashita.events.register('d3d_present', 'present_cb', function()
