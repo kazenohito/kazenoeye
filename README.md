@@ -14,7 +14,7 @@ It adds a UI to display the status of mobs and displays it in front of the model
 
 
 ## Commands
-`/kazenoeye` Open the settings screen.
+`/kazneoeye` Open the settings screen.
 
 
 ## Third-Party Code

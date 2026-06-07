@@ -129,13 +129,16 @@ end
 
 local function createTargetHudOnMobs(entities)
     local mobs = {};
+
     for index, entity in ipairs(entities) do
-        local isMyPet = true
+        local isMyPet = true;
+
         if config.createTargetHudOnMobs.only_mypet then
             if isPetByEntity(entity.entity) and not isMyPetByEntity(entity.entity) then
-                isMyPet = false
+                isMyPet = false;
             end
         end
+
         if (
             (isMobByEntity(entity.entity) and (entity.entity.Status == 1 or entity.entity.Status == 3))
             or (config.createTargetHudOnMobs.pets_enable and isPetByEntity(entity.entity) and entity.entity.HPPercent <= 99 and isMyPet)
@@ -150,104 +153,174 @@ local function createTargetHudOnMobs(entities)
         local xx, yy = screenPosition.getScreenPosition(x1, y1, z1);
 
         if (xx ~= nil and yy ~= nil and xx > 0 and yy > 0) then
+
+            -- HP BAR WINDOW
             imgui.SetNextWindowBgAlpha(0.4);
-            imgui.SetNextWindowPos({xx, yy}, 0, {0.5,0.5});
-            imgui.SetNextWindowSize({32+config.createTargetHudOnMobs.hp_size[1]+(config.createTargetHudOnMobs.hp_font_size*40), 24+config.createTargetHudOnMobs.hp_size[2]})
-            if (imgui.Begin('TargetHud:' .. entity.index, true, bit.bor(ImGuiWindowFlags_AlwaysAutoResize, ImGuiWindowFlags_NoTitleBar, ImGuiWindowFlags_NoBackground, ImGuiWindowFlags_NoScrollbar, ImGuiWindowFlags_NoSavedSettings))) then
-                imgui.SetWindowFontScale(config.createTargetHudOnMobs.hp_font_size);
+            imgui.SetNextWindowPos({xx, yy}, 0, {0.5, 0.5});
+            imgui.SetNextWindowSize({
+                32 + config.createTargetHudOnMobs.hp_size[1] + (config.createTargetHudOnMobs.hp_font_size * 40),
+                24 + config.createTargetHudOnMobs.hp_size[2]
+            });
+
+            if (imgui.Begin('TargetHud:' .. entity.index, true, bit.bor(
+                ImGuiWindowFlags_AlwaysAutoResize,
+                ImGuiWindowFlags_NoTitleBar,
+                ImGuiWindowFlags_NoBackground,
+                ImGuiWindowFlags_NoScrollbar,
+                ImGuiWindowFlags_NoSavedSettings
+            ))) then
+                
 
                 local x, y = imgui.GetCursorScreenPos();
                 local color = nil;
 
-                local gageRelativePos = {10, 4}
-                local gageBaseSize = {x+config.createTargetHudOnMobs.hp_size[1],y+config.createTargetHudOnMobs.hp_size[2]};
+                local gageRelativePos = {10, 4};
+                local gageBaseSize = {
+                    x + config.createTargetHudOnMobs.hp_size[1],
+                    y + config.createTargetHudOnMobs.hp_size[2]
+                };
+
                 color = imgui.GetColorU32({0,0,0,1});
-                imgui.GetWindowDrawList():AddRectFilled({gageRelativePos[1]+x-2,gageRelativePos[2]+y-2},{gageRelativePos[1]+gageBaseSize[1]+2,gageRelativePos[2]+gageBaseSize[2]+2},color,0.5);
+                imgui.GetWindowDrawList():AddRectFilled(
+                    {gageRelativePos[1]+x-2, gageRelativePos[2]+y-2},
+                    {gageRelativePos[1]+gageBaseSize[1]+2, gageRelativePos[2]+gageBaseSize[2]+2},
+                    color,
+                    0.5
+                );
+
                 color = imgui.GetColorU32({1,1,1,1});
-                imgui.GetWindowDrawList():AddRectFilled({gageRelativePos[1]+x-1,gageRelativePos[2]+y-1},{gageRelativePos[1]+gageBaseSize[1]+1,gageRelativePos[2]+gageBaseSize[2]+1},color,0.5);
+                imgui.GetWindowDrawList():AddRectFilled(
+                    {gageRelativePos[1]+x-1, gageRelativePos[2]+y-1},
+                    {gageRelativePos[1]+gageBaseSize[1]+1, gageRelativePos[2]+gageBaseSize[2]+1},
+                    color,
+                    0.5
+                );
+
                 color = imgui.GetColorU32({0,0,0,1});
-                imgui.GetWindowDrawList():AddRectFilled({gageRelativePos[1]+x,gageRelativePos[2]+y},{gageRelativePos[1]+gageBaseSize[1],gageRelativePos[2]+gageBaseSize[2]},color,0.5);
-        
+                imgui.GetWindowDrawList():AddRectFilled(
+                    {gageRelativePos[1]+x, gageRelativePos[2]+y},
+                    {gageRelativePos[1]+gageBaseSize[1], gageRelativePos[2]+gageBaseSize[2]},
+                    color,
+                    0.5
+                );
+
                 if (entity.entity.HPPercent > 0) then
                     if isMobByEntity(entity.entity) then
                         color = imgui.GetColorU32({0.8, 0.2, 0.2, 1});
                     else
                         color = imgui.GetColorU32({0.2, 0.8, 0.2, 1});
                     end
-                    imgui.GetWindowDrawList():AddRectFilled({gageRelativePos[1]+x,gageRelativePos[2]+y},{gageRelativePos[1]+x + (config.createTargetHudOnMobs.hp_size[1] * (entity.entity.HPPercent /100)),gageRelativePos[2]+gageBaseSize[2]},color,0.5);
+
+                    imgui.GetWindowDrawList():AddRectFilled(
+                        {gageRelativePos[1]+x, gageRelativePos[2]+y},
+                        {
+                            gageRelativePos[1]+x + (config.createTargetHudOnMobs.hp_size[1] * (entity.entity.HPPercent / 100)),
+                            gageRelativePos[2]+gageBaseSize[2]
+                        },
+                        color,
+                        0.5
+                    );
                 end
 
                 local fontPos = {
                     config.createTargetHudOnMobs.hp_size[1] + 2,
                     (config.createTargetHudOnMobs.hp_size[2] / 2) + 1 - (config.createTargetHudOnMobs.hp_font_size * 11),
-                }
+                };
+               local hpText = '' .. entity.entity.HPPercent .. '%'
 
                 color = imgui.GetColorU32({0,0,0,1});
-                imgui.GetWindowDrawList():AddText({gageRelativePos[1]+x+fontPos[1]+1,gageRelativePos[2]+y+fontPos[2]+1},color,''..entity.entity.HPPercent..'%')
-                imgui.GetWindowDrawList():AddText({gageRelativePos[1]+x+fontPos[1]-1,gageRelativePos[2]+y+fontPos[2]-1},color,''..entity.entity.HPPercent..'%')
+                imgui.GetWindowDrawList():AddText(
+                {gageRelativePos[1]+x+fontPos[1]+1, gageRelativePos[2]+y+fontPos[2]+1},
+                color,
+                hpText
+            )
+
+                imgui.GetWindowDrawList():AddText(
+                {gageRelativePos[1]+x+fontPos[1]-1, gageRelativePos[2]+y+fontPos[2]-1},
+                color,
+                hpText
+            )
+
                 color = imgui.GetColorU32({1,1,1,1});
-                imgui.GetWindowDrawList():AddText({gageRelativePos[1]+x+fontPos[1],gageRelativePos[2]+y+fontPos[2]},color,''..entity.entity.HPPercent..'%')
+                imgui.GetWindowDrawList():AddText(
+                {gageRelativePos[1]+x+fontPos[1], gageRelativePos[2]+y+fontPos[2]},
+                color,
+            hpText
+            )
             end
             imgui.End();
 
-
+            -- DEBUFF WINDOW
             imgui.SetNextWindowBgAlpha(0.4);
-            imgui.SetNextWindowPos({xx, yy-4+(config.createTargetHudOnMobs.hp_size[2]/2)}, 0, {0.5,0});
-            if (imgui.Begin('TargetHud_debuff:' .. entity.index, true, bit.bor(ImGuiWindowFlags_AlwaysAutoResize, ImGuiWindowFlags_NoTitleBar, ImGuiWindowFlags_NoBackground, ImGuiWindowFlags_NoScrollbar, ImGuiWindowFlags_NoSavedSettings))) then
-                imgui.SetWindowFontScale(config.createTargetHudOnMobs.timer_size);
+            imgui.SetNextWindowPos({xx, yy - 4 + (config.createTargetHudOnMobs.hp_size[2] / 2)}, 0, {0.5, 0});
+
+            if (imgui.Begin('TargetHud_debuff:' .. entity.index, true, bit.bor(
+                ImGuiWindowFlags_AlwaysAutoResize,
+                ImGuiWindowFlags_NoTitleBar,
+                ImGuiWindowFlags_NoBackground,
+                ImGuiWindowFlags_NoScrollbar,
+                ImGuiWindowFlags_NoSavedSettings
+            ))) then
+
                 local buffIds, buffTimes = debuffHandler.GetActiveDebuffs(entity.entity.ServerId);
+
                 if (buffIds ~= nil and #buffIds > 0) then
-                    local bufffff = {}
-                    for i = 1,#buffIds do
-                        if (buffIds[i] == -1) then
+                    local samerine = config.createTargetHudOnMobs.icon_spacing;
+                    local icon_x = config.createTargetHudOnMobs.icon_size;
+                    local icon_y = config.createTargetHudOnMobs.icon_size;
+
+                    for i, v in ipairs(buffIds) do
+                        if (v == -1) then
                             break;
                         end
-                        table.insert(bufffff, buffIds[i])
-                    end
-                    for i, v in pairs(buffIds) do
-                        local samerine = config.createTargetHudOnMobs.icon_spacing
-                        local icon_x = config.createTargetHudOnMobs.icon_size
-                        local icon_y = config.createTargetHudOnMobs.icon_size
+
+                        local icon_pos_x, icon_pos_y = imgui.GetCursorScreenPos();
 
                         if buffTimes[i] < 5 and os.clock() % 0.1 >= 0.02 == false then
-                            imgui.Dummy({icon_x,icon_y})
+                            imgui.Dummy({icon_x, icon_y});
                         elseif buffTimes[i] < 10 and os.clock() % 0.5 >= 0.02 == false then
-                            imgui.Dummy({icon_x,icon_y})
+                            imgui.Dummy({icon_x, icon_y});
                         else
-                            texture.drawTexture("bufficon"..v, {icon_x,icon_y})
+                            texture.drawTexture("bufficon" .. v, {icon_x, icon_y});
                         end
 
-                        imgui.SetCursorPosY(imgui.GetCursorPosY() + 20)
                         if config.createTargetHudOnMobs.timer_enable then
+                            local timeValue = buffTimes[i];
+                            local text = '' .. timeValue;
+                            local textWidth, _ = imgui.CalcTextSize(text);
 
-                            local x, y = imgui.GetCursorScreenPos();
-                            y = y - 20
-                            x = x + ((i - 1) * config.createTargetHudOnMobs.icon_size + (i-1)*samerine)
+                            local text_x = icon_pos_x + ((icon_x - textWidth) * 0.5);
+                            local text_y = icon_pos_y + icon_y + 2;
 
-                            local text = buffTimes[i]
-                            local windowWidth = config.createTargetHudOnMobs.icon_size
-                            local textWidth, _ = imgui.CalcTextSize(''..text)
-                            local popopops_x = x + (windowWidth - textWidth) * 0.5
+                            local color = imgui.GetColorU32({1,1,1,1});
 
-                            local color = imgui.GetColorU32({1,1,1,1})
-                            if text < 10 then
-                                color = imgui.GetColorU32({1,0,0,1})
-                            elseif text < 20 then
-                                color = imgui.GetColorU32({1,1,0,1})
+                            if timeValue < 10 then
+                                color = imgui.GetColorU32({1,0,0,1});
+                            elseif timeValue < 20 then
+                                color = imgui.GetColorU32({1,1,0,1});
                             end
-                            imgui.GetWindowDrawList():AddText({popopops_x + 0, y - 6}, imgui.GetColorU32({0,0,0,1}), ''..text)
-                            imgui.GetWindowDrawList():AddText({popopops_x + 2, y - 4}, imgui.GetColorU32({0,0,0,1}), ''..text)
-                            imgui.GetWindowDrawList():AddText({popopops_x + 1, y - 5}, color, ''..text)
+
+                            
+
+                            imgui.GetWindowDrawList():AddText({text_x + 1, text_y + 1}, imgui.GetColorU32({0,0,0,1}), text);
+                            imgui.GetWindowDrawList():AddText({text_x - 1, text_y - 1}, imgui.GetColorU32({0,0,0,1}), text);
+                            imgui.GetWindowDrawList():AddText({text_x, text_y}, color, text);
+
+                        
                         end
 
-                        imgui.SameLine(0,samerine)
+                        if i < #buffIds then
+                            imgui.SameLine(0, samerine);
+                        end
                     end
+
+                    imgui.Dummy({1, 20});
                 end
             end
+
             imgui.End();
         end
     end
-
 end
 
 function ParseMessagePacket(e)
