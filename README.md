@@ -17,7 +17,7 @@ This version is still being tested. Some features may not be available, and bugs
 
 
 ## Commands
-`/kazneoeye` Open the settings screen.
+`/kazenoeye` Open the settings screen.
 
 
 ## Third-Party Code
