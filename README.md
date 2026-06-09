@@ -5,6 +5,9 @@ It adds a UI to display the status of mobs and displays it in front of the model
 ![screenshot](https://github.com/kazenohito/kazenoeye/blob/main/sample2.png)
 ![screenshot](https://github.com/kazenohito/kazenoeye/blob/main/sample1.png)
 
+## Ashita v4.30 Support
+Support for the 4.30 branch has been committed.
+This version is still being tested. Some features may not be available, and bugs may exist.
 
 ## How to install:
 - Please download the latest version from the release page.
