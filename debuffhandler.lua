@@ -21,6 +21,7 @@ local deathMes = {[6]=true, [20]=true, [97]=true, [113]=true, [406]=true, [605]=
 local spellDamageMes = {[2]=true, [252]=true, [264]=true, [265]=true};
 local additionalEffectJobAbilities = {[22]=true, [45]=true, [46]=true, [77]=true}; --energy drain, mug, shield bash, weapon bash
 local additionalEffectMes = {[160]=true, [164]=true};
+local spikesEffectMes = {[374]=true};
 
 -- Spell duration lookup table for O(1) performance
 -- Maps spell IDs to duration (in seconds) and optionally buff ID overrides
@@ -45,6 +46,8 @@ local SPELL_DURATIONS = {
     [162] = {duration = 5, buffId = 10},    -- Brainshaker - Stun
     [145] = {duration = 5, buffId = 10},    -- Tachi: Hobaku - Stun
     [80] = {duration = 180, buffId = 148},  -- Shield Break - Evasion Down
+    [73] = {duration = 120, buffId = 146},  -- Onslaught - Accuracy Down
+    [170] = {duration = 120, buffId = 148},  -- Shield Break - Evasion Down
 
     -- Dia/Bio spells
     [23] = {duration = 60},   -- Dia
@@ -86,6 +89,16 @@ local SPELL_DURATIONS = {
     [252] = {duration = 5},   -- Stun
     [220] = {duration = 90},  -- Poison
     [221] = {duration = 120}, -- Poison II
+
+    --buff spells
+    [100] = {duration = 180, buffId = 94, clearsBuffs = {94, 95, 96, 97, 98, 99, 310, 311}}, -- Enfire
+    [101] = {duration = 180, buffId = 95, clearsBuffs = {94, 95, 96, 97, 98, 99, 310, 311}}, -- Enblizzard
+    [102] = {duration = 180, buffId = 96, clearsBuffs = {94, 95, 96, 97, 98, 99, 310, 311}}, -- Enaero
+    [103] = {duration = 180, buffId = 97, clearsBuffs = {94, 95, 96, 97, 98, 99, 310, 311}}, -- Enstone
+    [104] = {duration = 180, buffId = 98, clearsBuffs = {94, 95, 96, 97, 98, 99, 310, 311}}, -- Enthunder
+    [105] = {duration = 180, buffId = 99, clearsBuffs = {94, 95, 96, 97, 98, 99, 310, 311}}, -- Enwater
+    [310] = {duration = 300, buffId = 274, clearsBuffs = {94, 95, 96, 97, 98, 99, 310, 311}}, -- Enlight
+    [311] = {duration = 300, buffId = 275, clearsBuffs = {94, 95, 96, 97, 98, 99, 310, 311}}, -- Endark
 
     -- Ninjutsu debuffs
     [341] = {duration = 180}, -- Kurayami: Ichi
@@ -134,6 +147,12 @@ local SPELL_DURATIONS = {
     [2] = {duration = 25, additionalEffect = true},   -- Sleep Bolt
     [149] = {duration = 60, additionalEffect = true}, -- Defense Down/Acid Bolt
     [12] = {duration = 30, additionalEffect = true},  -- Gravity/Mandau
+    [6] = {duration = 60, additionalEffect = true}, -- Silence/Kabura Arrows
+    [10] = {duration = 5, additionalEffect = true}, -- Stun
+    [3] = {duration = 30, additionalEffect = true}, -- Poison/Venom Bolt
+
+    -- spikes effect debuffs
+    [9] = {duration = 180, spikesEffect = true},   -- Iqgira set
 
     -- Special cases
     [1908] = {duration = 60, buffId = 2, type = 13}, -- Nightmare (pet ability)
@@ -151,6 +170,8 @@ local PET_ABILITY_DURATIONS = {
     [630] = {duration = 12, buffId = 10, type = 13}, -- カオスストライク
     [528] = {duration = 60, buffId = 5, type = 13}, -- ムーンリットチャージ
     [529] = {duration = 60, buffId = 4, type = 13}, -- クレセントファング
+    [530] = {duration = 180, buffIds = {146, 148}, type = 13}, -- ルナークライ
+    [611] = {duration = 90, buffId = 2, type = 13}, -- スリプガ
 
     [3841] = {duration = 120, buffId = 5, type = 11}, -- 土煙
     [3860] = {duration = 45, buffId = 2, type = 11}, -- シープソング
@@ -202,18 +223,23 @@ local function ApplyMessage(debuffs, action)
             local spell = action.Param
             local message = ability.Message
             local additionalEffect
+            local spikesEffect
+            local ent = GetEntity(action.UserIndex)
 
             if (ability.AdditionalEffect ~= nil and ability.AdditionalEffect.Message ~= nil) then
                 additionalEffect = ability.AdditionalEffect.Message
+            end
+            if (ability.SpikesEffect ~= nil and ability.SpikesEffect.Message ~= nil) then
+                spikesEffect = ability.SpikesEffect.Message
+
+                if (ent ~= nil and debuffs[ent.ServerId] == nil) then
+                    debuffs[ent.ServerId] = T{};
+                end
             end
 
             if (debuffs[target.Id] == nil) then
                 debuffs[target.Id] = T{};
             end
-
-            -- print(action.Type.. ':'..message)
-            -- print(spell)
-            -- print(message)
 
             -- Handle pet abilities (Type 13)
             if action.Type == 13 and spell == 1908 then
@@ -257,7 +283,12 @@ local function ApplyMessage(debuffs, action)
                     return
                 end
 
+
                 local spellData = SPELL_DURATIONS[spell];
+                if (action.Type == 13) then
+                    spellData = PET_ABILITY_DURATIONS[spell];
+                end
+
                 if spellData then
                     -- Handle special clear buffs (Sleep II clears Sleep I)
                     if spellData.clearsBuffs then
@@ -265,9 +296,16 @@ local function ApplyMessage(debuffs, action)
                             debuffs[target.Id][clearBuffId] = nil;
                         end
                     end
+
+                    local duration = spellData.duration
+                    if config.createTargetHudOnMobs.addEffectLullaby >= 1 and (spell == 376 or spell == 463) then
+                        local additional = (config.createTargetHudOnMobs.addEffectLullaby * 0.1) + 1
+                        duration = spellData.duration * additional
+                    end
+
                     -- Apply the debuff
                     local finalBuffId = spellData.buffId or buffId;
-                    debuffs[target.Id][finalBuffId] = now + spellData.duration;
+                    debuffs[target.Id][finalBuffId] = now + duration;
                 else
                     -- Unknown status effect - default to 5 minutes
                     debuffs[target.Id][buffId] = now + 300;
@@ -302,6 +340,24 @@ local function ApplyMessage(debuffs, action)
                     -- Default duration for unknown additional effects
                     debuffs[target.Id][buffId] = now + 30;
                 end
+            -- Handle spike effects
+            elseif spikesEffect ~= nil and spikesEffectMes[spikesEffect] then
+                local buffId = ability.SpikesEffect.Param;
+                if (buffId == nil) then
+                    return
+                end
+
+                local spellData = SPELL_DURATIONS[buffId];
+                if spellData and spellData.spikesEffect then
+                    if debuffs[ent.ServerId][buffId] == null or debuffs[ent.ServerId][buffId] < now then
+                        debuffs[ent.ServerId][buffId] = now + spellData.duration;
+                    end
+                else
+                    if debuffs[ent.ServerId][buffId] == null or debuffs[ent.ServerId][buffId] < now then
+                        -- Default duration for unknown spikes effects
+                        debuffs[ent.ServerId][buffId] = now + 300;
+                    end
+                end
             -- Handle monsters abilities
             elseif action.Type == 11 and (message == 185 or message == 242) then
                 -- local tpName = AshitaCore:GetResourceManager():GetString('monsters.abilities', action.Param - 256, 1);
@@ -328,7 +384,7 @@ local function ApplyMessage(debuffs, action)
                     end
                 end
             -- Handle avatar blood pacts
-            elseif action.Type == 13 and message == 317 then
+            elseif action.Type == 13 and (message == 317 or message == 144) then
                 local tmpAbiParam = action.Param
 
                 -- local tpName = AshitaCore:GetResourceManager():GetString('monsters.abilities', tmpAbiParam - 256, 1);
@@ -349,6 +405,10 @@ local function ApplyMessage(debuffs, action)
                             debuffs[target.Id][abiData.buffId] = now + abiData.duration;
                         else
                             debuffs[target.Id][abiData.buffId] = now + 180;
+                        end
+                    elseif abiData.buffIds ~= nil then
+                        for _, buffId in ipairs(abiData.buffIds) do
+                            debuffs[target.Id][buffId] = now + abiData.duration;
                         end
                     end
                 end

@@ -1,6 +1,6 @@
 addon.name      = 'kazenoeye';
 addon.author    = 'kazenohito';
-addon.version   = '1.2.8';
+addon.version   = '1.3.0';
 addon.desc      = 'Display information about Entity within visible range';
 addon.link      = 'https://github.com/kazenohito/kazenoeye';
 
@@ -24,6 +24,8 @@ local default_settings = T{
         icon_spacing = 2,
         timer_enable = true,
         timer_size = 0.60,
+        format_min = false,
+        addEffectLullaby = 0,
     },
 };
 local config_lang_resource = T{
@@ -67,12 +69,35 @@ local config_lang_resource = T{
         en = 'TimerSize',
         jp = 'タイマーサイズ',
     },
+    createTargetHudOnMobs_format_min = {
+        en = 'Format Display In Minutes',
+        jp = '分表示に変換',
+    },
+    addEffectLullaby = {
+        en = 'Effect Level Of Lullaby',
+        jp = 'ララバイの効果レベル',
+    },
+    addEffectLullabyHelp = {
+        en = 'Extends the duration display of the Lullaby effect. (+1 for a 10% increase)',
+        jp = 'ララバイの効果時間表示を延長します。(+1で10％)',
+    },
 }
 
-local config = settings.load(default_settings);
+config = settings.load(default_settings);
 local showConfig = { false };
 
 local helpers  = require('helpers');
+
+local function formatTimeMin(sec)
+    local m = math.floor(sec / 60)
+    local s = sec % 60
+
+    if m > 0 then
+        return string.format("%dm", m)
+    else
+        return string.format("%d", s)
+    end
+end
 
 local function isRendererByEntity(entity)
     return (bit.band(entity.Render.Flags0, 0x200) == 0x200);
@@ -219,22 +244,26 @@ local function createTargetHudOnMobs(entities)
 
                         imgui.SetCursorPosY(imgui.GetCursorPosY() + 20)
                         if config.createTargetHudOnMobs.timer_enable then
-
                             local x, y = imgui.GetCursorScreenPos();
                             y = y - 20
                             x = x + ((i - 1) * config.createTargetHudOnMobs.icon_size + (i-1)*samerine)
 
-                            local text = buffTimes[i]
+                            local time = buffTimes[i]
                             local windowWidth = config.createTargetHudOnMobs.icon_size
+                            local text = time
+                            if config.createTargetHudOnMobs.format_min then
+                                text = formatTimeMin(time)
+                            end
                             local textWidth, _ = imgui.CalcTextSize(''..text)
                             local popopops_x = x + (windowWidth - textWidth) * 0.5
 
                             local color = imgui.GetColorU32({1,1,1,1})
-                            if text < 10 then
-                                color = imgui.GetColorU32({1,0,0,1})
-                            elseif text < 20 then
+                            if time < 10 then
+                                color = imgui.GetColorU32({1,0.3,0.3,1})
+                            elseif time < 20 then
                                 color = imgui.GetColorU32({1,1,0,1})
                             end
+
                             imgui.GetWindowDrawList():AddText({popopops_x + 0, y - 6}, imgui.GetColorU32({0,0,0,1}), ''..text)
                             imgui.GetWindowDrawList():AddText({popopops_x + 2, y - 4}, imgui.GetColorU32({0,0,0,1}), ''..text)
                             imgui.GetWindowDrawList():AddText({popopops_x + 1, y - 5}, color, ''..text)
@@ -525,6 +554,17 @@ function drawConfigWindow()
             config.createTargetHudOnMobs.timer_size = timerSize[1]
             settings.save();
         end
+        local createTargetHudOnMobs_format_min = {config.createTargetHudOnMobs.format_min};
+        if (imgui.Checkbox(config_lang_resource.createTargetHudOnMobs_format_min[lang], createTargetHudOnMobs_format_min)) then
+            config.createTargetHudOnMobs.format_min = createTargetHudOnMobs_format_min[1];
+            settings.save();
+        end
+        local addEffectLullaby = {config.createTargetHudOnMobs.addEffectLullaby}
+        if (imgui.SliderInt(config_lang_resource.addEffectLullaby[lang], addEffectLullaby, 0, 2)) then
+            config.createTargetHudOnMobs.addEffectLullaby = addEffectLullaby[1]
+            settings.save();
+        end
+        imgui.ShowHelp(config_lang_resource.addEffectLullabyHelp[lang]);
     end
     imgui.End();
 end
