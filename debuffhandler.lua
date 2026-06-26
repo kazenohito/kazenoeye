@@ -26,29 +26,6 @@ local spikesEffectMes = {[374]=true};
 -- Spell duration lookup table for O(1) performance
 -- Maps spell IDs to duration (in seconds) and optionally buff ID overrides
 local SPELL_DURATIONS = {
-    -- Weapon skills with debuffs
-    [181] = {duration = 180, buffId = 149}, -- Shell Crusher - Defense Down
-    [83] = {duration = 180, buffId = 149},  -- Armor Break - Defense Down
-    [87] = {duration = 180, buffIds = {149, 147}}, -- Full Break - Defense Down & Attack Down
-    [155] = {duration = 180, buffId = 149}, -- Tachi: Ageha - Defense Down
-    [187] = {duration = 180, buffId = 149}, -- Garland of Bliss - Defense Down
-    [89] = {duration = 180, buffId = 149},  -- Metatron Torment - Defense Down
-    [85] = {duration = 180, buffId = 147},  -- Weapon Break - Attack Down
-    [185] = {duration = 180, buffId = 147}, -- Gate of Tartarus - Attack Down
-    [107] = {duration = 180, buffId = 147}, -- Infernal Scythe - Attack Down
-    [16] = {duration = 90, buffId = 3},     -- Wasp Sting - Poison
-    [17] = {duration = 90, buffId = 3},     -- Viper Bite - Poison
-    [18] = {duration = 30, buffId = 11},    -- Shadowstitch - Bind
-    [35] = {duration = 5, buffId = 10},     -- Flat Blade - Stun
-    [115] = {duration = 5, buffId = 10},    -- Leg Sweep - Stun
-    [2] = {duration = 5, buffId = 10},      -- Shoulder Tackle - Stun
-    [65] = {duration = 5, buffId = 10},     -- Smash Axe - Stun
-    [162] = {duration = 5, buffId = 10},    -- Brainshaker - Stun
-    [145] = {duration = 5, buffId = 10},    -- Tachi: Hobaku - Stun
-    [80] = {duration = 180, buffId = 148},  -- Shield Break - Evasion Down
-    [73] = {duration = 120, buffId = 146},  -- Onslaught - Accuracy Down
-    [170] = {duration = 120, buffId = 148},  -- Shield Break - Evasion Down
-
     -- Dia/Bio spells
     [23] = {duration = 60},   -- Dia
     [33] = {duration = 60},   -- Diaga
@@ -158,6 +135,31 @@ local SPELL_DURATIONS = {
     [1908] = {duration = 60, buffId = 2, type = 13}, -- Nightmare (pet ability)
 };
 
+local WEAPON_SKILL_DURATIONS = {
+    -- Weapon skills with debuffs
+    [181] = {duration = 180, buffId = 149}, -- Shell Crusher - Defense Down
+    [83] = {duration = 180, buffId = 149},  -- Armor Break - Defense Down
+    [87] = {duration = 180, buffIds = {149, 147}}, -- Full Break - Defense Down & Attack Down
+    [155] = {duration = 180, buffId = 149}, -- Tachi: Ageha - Defense Down
+    [187] = {duration = 180, buffId = 149}, -- Garland of Bliss - Defense Down
+    [89] = {duration = 180, buffId = 149},  -- Metatron Torment - Defense Down
+    [85] = {duration = 180, buffId = 147},  -- Weapon Break - Attack Down
+    [185] = {duration = 180, buffId = 147}, -- Gate of Tartarus - Attack Down
+    [107] = {duration = 180, buffId = 147}, -- Infernal Scythe - Attack Down
+    [16] = {duration = 90, buffId = 3},     -- Wasp Sting - Poison
+    [17] = {duration = 90, buffId = 3},     -- Viper Bite - Poison
+    [18] = {duration = 30, buffId = 11},    -- Shadowstitch - Bind
+    [35] = {duration = 5, buffId = 10},     -- Flat Blade - Stun
+    [115] = {duration = 5, buffId = 10},    -- Leg Sweep - Stun
+    [2] = {duration = 5, buffId = 10},      -- Shoulder Tackle - Stun
+    [65] = {duration = 5, buffId = 10},     -- Smash Axe - Stun
+    [162] = {duration = 5, buffId = 10},    -- Brainshaker - Stun
+    [145] = {duration = 5, buffId = 10},    -- Tachi: Hobaku - Stun
+    [80] = {duration = 180, buffId = 148},  -- Shield Break - Evasion Down
+    [73] = {duration = 120, buffId = 146},  -- Onslaught - Accuracy Down
+    [170] = {duration = 120, buffId = 148},  -- Randgrith - Evasion Down
+}
+
 local PET_ABILITY_DURATIONS = {
     [513] = {duration = 90, buffId = 3, type = 13}, -- ポイズンネイル
     [560] = {duration = 60, buffId = 13, type = 13}, -- ロックスロー
@@ -247,7 +249,7 @@ local function ApplyMessage(debuffs, action)
                 debuffs[target.Id][2] = now + 60
             -- Handle weapon skills (Type 3 with damage message)
             elseif action.Type == 3 and message == 185 then
-                local spellData = SPELL_DURATIONS[spell];
+                local spellData = WEAPON_SKILL_DURATIONS[spell];
                 if spellData then
                     if spellData.buffId then
                         debuffs[target.Id][spellData.buffId] = now + spellData.duration;
