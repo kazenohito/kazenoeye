@@ -84,6 +84,8 @@ local SPELL_DURATIONS = {
     [342] = {duration = 300}, -- Kurayami: Ni
     [345] = {duration = 300}, -- Hojo: Ni
     [348] = {duration = 300}, -- Dokumori: Ni
+    [338] = {duration = 900, buffId = 445}, -- Utsusemi: Ichi
+    [339] = {duration = 900, buffId = 446}, -- Utsusemi: Ni
 
     -- Elemental debuffs (Burn, Frost, Choke, Rasp, Shock, Drown)
     [235] = {duration = 120}, [236] = {duration = 120},
@@ -113,12 +115,6 @@ local SPELL_DURATIONS = {
     [693] = {duration = 30}, -- Perfect Dodge
     [694] = {duration = 30}, -- Invincible
     [695] = {duration = 30}, -- Blood Weapon
-
-    -- Job abilities with debuffs
-    [22] = {duration = 120, buffId = 13},  -- Energy Drain - Max HP Down
-    [45] = {duration = 30, buffId = 448},  -- Mug - ???
-    [46] = {duration = 6, buffId = 10},    -- Shield Bash - Stun
-    [77] = {duration = 6, buffId = 10},    -- Weapon Bash - Stun
 
     -- Additional effect debuffs
     [2] = {duration = 25, additionalEffect = true},   -- Sleep Bolt
@@ -158,6 +154,7 @@ local WEAPON_SKILL_DURATIONS = {
     [80] = {duration = 180, buffId = 148},  -- Shield Break - Evasion Down
     [73] = {duration = 120, buffId = 146},  -- Onslaught - Accuracy Down
     [170] = {duration = 120, buffId = 148},  -- Randgrith - Evasion Down
+    [22] = {duration = 210, buffId = 13},   -- Energy Drain - Slow
 }
 
 local PET_ABILITY_DURATIONS = {
@@ -209,6 +206,13 @@ local PET_ABILITY_DURATIONS = {
     [3873] = {duration = 50, buffId = 6, type = 11}, -- サイレスガス
     [3874] = {duration = 90, buffId = 5, type = 11}, -- ダークスポア
 };
+
+local JOB_ABILITY_DURATIONS = {
+    -- Job abilities with debuffs
+    [45] = {duration = 30, buffId = 448},  -- Mug - ???
+    [46] = {duration = 6, buffId = 10},    -- Shield Bash - Stun
+    [77] = {duration = 6, buffId = 10},    -- Weapon Bash - Stun
+}
 
 local function ApplyMessage(debuffs, action)
 
@@ -285,9 +289,8 @@ local function ApplyMessage(debuffs, action)
                     return
                 end
 
-
                 local spellData = SPELL_DURATIONS[spell];
-                if (action.Type == 13) then
+                if action.Type == 13 then
                     spellData = PET_ABILITY_DURATIONS[spell];
                 end
 
@@ -321,7 +324,7 @@ local function ApplyMessage(debuffs, action)
                 end
             -- Handle job abilities with additional effects
             elseif action.Type == 3 and additionalEffectJobAbilities[spell] then
-                local spellData = SPELL_DURATIONS[spell];
+                local spellData = JOB_ABILITY_DURATIONS[spell];
                 if spellData and spellData.buffId and (message == 185 or spell ~= 22) then
                     -- Only apply if not already present or expired
                     if (debuffs[target.Id][spellData.buffId] == nil or debuffs[target.Id][spellData.buffId] < now) then
