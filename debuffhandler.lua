@@ -175,6 +175,7 @@ local PET_ABILITY_DURATIONS = {
     [3841] = {duration = 120, buffId = 5, type = 11}, -- 土煙
     [3860] = {duration = 45, buffId = 2, type = 11}, -- シープソング
     [3848] = {duration = 120, buffId = 4, type = 11}, -- 咆哮
+    [3843] = {duration = 4, buffId = 10, type = 11}, -- ヘッドバット
     [3844] = {duration = 30, buffId = 2, type = 11}, -- 夢想花
     [3845] = {duration = 112, buffId = 138, type = 11}, -- 種まき
     [3846] = {duration = 18, buffId = 3, type = 11}, -- リーフダガー

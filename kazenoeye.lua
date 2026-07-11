@@ -1,6 +1,6 @@
 addon.name      = 'kazenoeye';
 addon.author    = 'kazenohito';
-addon.version   = '1.3.2';
+addon.version   = '1.3.3';
 addon.desc      = 'Display information about Entity within visible range';
 addon.link      = 'https://github.com/kazenohito/kazenoeye';
 
@@ -178,7 +178,7 @@ local function createTargetHudOnMobs(entities)
             imgui.SetNextWindowBgAlpha(0.4);
             imgui.SetNextWindowPos({xx, yy}, 0, {0.5,0.5});
             imgui.SetNextWindowSize({32+config.createTargetHudOnMobs.hp_size[1]+(config.createTargetHudOnMobs.hp_font_size*40), 24+config.createTargetHudOnMobs.hp_size[2]})
-            if (imgui.Begin('TargetHud:' .. entity.index, true, bit.bor(ImGuiWindowFlags_AlwaysAutoResize, ImGuiWindowFlags_NoTitleBar, ImGuiWindowFlags_NoBackground, ImGuiWindowFlags_NoScrollbar, ImGuiWindowFlags_NoSavedSettings))) then
+            if (imgui.Begin('TargetHud:' .. entity.index, true, bit.bor(ImGuiWindowFlags_AlwaysAutoResize, ImGuiWindowFlags_NoTitleBar, ImGuiWindowFlags_NoBackground, ImGuiWindowFlags_NoScrollbar, ImGuiWindowFlags_NoInputs, ImGuiWindowFlags_NoSavedSettings))) then
                 imgui.SetWindowFontScale(config.createTargetHudOnMobs.hp_font_size);
 
                 local x, y = imgui.GetCursorScreenPos();
@@ -218,7 +218,7 @@ local function createTargetHudOnMobs(entities)
 
             imgui.SetNextWindowBgAlpha(0.4);
             imgui.SetNextWindowPos({xx, yy-4+(config.createTargetHudOnMobs.hp_size[2]/2)}, 0, {0.5,0});
-            if (imgui.Begin('TargetHud_debuff:' .. entity.index, true, bit.bor(ImGuiWindowFlags_AlwaysAutoResize, ImGuiWindowFlags_NoTitleBar, ImGuiWindowFlags_NoBackground, ImGuiWindowFlags_NoScrollbar, ImGuiWindowFlags_NoSavedSettings))) then
+            if (imgui.Begin('TargetHud_debuff:' .. entity.index, true, bit.bor(ImGuiWindowFlags_AlwaysAutoResize, ImGuiWindowFlags_NoTitleBar, ImGuiWindowFlags_NoBackground, ImGuiWindowFlags_NoScrollbar, ImGuiWindowFlags_NoInputs, ImGuiWindowFlags_NoSavedSettings))) then
                 imgui.SetWindowFontScale(config.createTargetHudOnMobs.timer_size);
                 local buffIds, buffTimes = debuffHandler.GetActiveDebuffs(entity.entity.ServerId);
                 if (buffIds ~= nil and #buffIds > 0) then
