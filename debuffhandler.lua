@@ -21,31 +21,11 @@ local deathMes = {[6]=true, [20]=true, [97]=true, [113]=true, [406]=true, [605]=
 local spellDamageMes = {[2]=true, [252]=true, [264]=true, [265]=true};
 local additionalEffectJobAbilities = {[22]=true, [45]=true, [46]=true, [77]=true}; --energy drain, mug, shield bash, weapon bash
 local additionalEffectMes = {[160]=true, [164]=true};
+local spikesEffectMes = {[374]=true};
 
 -- Spell duration lookup table for O(1) performance
 -- Maps spell IDs to duration (in seconds) and optionally buff ID overrides
 local SPELL_DURATIONS = {
-    -- Weapon skills with debuffs
-    [181] = {duration = 180, buffId = 149}, -- Shell Crusher - Defense Down
-    [83] = {duration = 180, buffId = 149},  -- Armor Break - Defense Down
-    [87] = {duration = 180, buffIds = {149, 147}}, -- Full Break - Defense Down & Attack Down
-    [155] = {duration = 180, buffId = 149}, -- Tachi: Ageha - Defense Down
-    [187] = {duration = 180, buffId = 149}, -- Garland of Bliss - Defense Down
-    [89] = {duration = 180, buffId = 149},  -- Metatron Torment - Defense Down
-    [85] = {duration = 180, buffId = 147},  -- Weapon Break - Attack Down
-    [185] = {duration = 180, buffId = 147}, -- Gate of Tartarus - Attack Down
-    [107] = {duration = 180, buffId = 147}, -- Infernal Scythe - Attack Down
-    [16] = {duration = 90, buffId = 3},     -- Wasp Sting - Poison
-    [17] = {duration = 90, buffId = 3},     -- Viper Bite - Poison
-    [18] = {duration = 30, buffId = 11},    -- Shadowstitch - Bind
-    [35] = {duration = 5, buffId = 10},     -- Flat Blade - Stun
-    [115] = {duration = 5, buffId = 10},    -- Leg Sweep - Stun
-    [2] = {duration = 5, buffId = 10},      -- Shoulder Tackle - Stun
-    [65] = {duration = 5, buffId = 10},     -- Smash Axe - Stun
-    [162] = {duration = 5, buffId = 10},    -- Brainshaker - Stun
-    [145] = {duration = 5, buffId = 10},    -- Tachi: Hobaku - Stun
-    [80] = {duration = 180, buffId = 148},  -- Shield Break - Evasion Down
-
     -- Dia/Bio spells
     [23] = {duration = 60},   -- Dia
     [33] = {duration = 60},   -- Diaga
@@ -87,6 +67,16 @@ local SPELL_DURATIONS = {
     [220] = {duration = 90},  -- Poison
     [221] = {duration = 120}, -- Poison II
 
+    --buff spells
+    [100] = {duration = 180, buffId = 94, clearsBuffs = {94, 95, 96, 97, 98, 99, 310, 311}}, -- Enfire
+    [101] = {duration = 180, buffId = 95, clearsBuffs = {94, 95, 96, 97, 98, 99, 310, 311}}, -- Enblizzard
+    [102] = {duration = 180, buffId = 96, clearsBuffs = {94, 95, 96, 97, 98, 99, 310, 311}}, -- Enaero
+    [103] = {duration = 180, buffId = 97, clearsBuffs = {94, 95, 96, 97, 98, 99, 310, 311}}, -- Enstone
+    [104] = {duration = 180, buffId = 98, clearsBuffs = {94, 95, 96, 97, 98, 99, 310, 311}}, -- Enthunder
+    [105] = {duration = 180, buffId = 99, clearsBuffs = {94, 95, 96, 97, 98, 99, 310, 311}}, -- Enwater
+    [310] = {duration = 300, buffId = 274, clearsBuffs = {94, 95, 96, 97, 98, 99, 310, 311}}, -- Enlight
+    [311] = {duration = 300, buffId = 275, clearsBuffs = {94, 95, 96, 97, 98, 99, 310, 311}}, -- Endark
+
     -- Ninjutsu debuffs
     [341] = {duration = 180}, -- Kurayami: Ichi
     [344] = {duration = 180}, -- Hojo: Ichi
@@ -94,6 +84,8 @@ local SPELL_DURATIONS = {
     [342] = {duration = 300}, -- Kurayami: Ni
     [345] = {duration = 300}, -- Hojo: Ni
     [348] = {duration = 300}, -- Dokumori: Ni
+    [338] = {duration = 900, buffId = 445}, -- Utsusemi: Ichi
+    [339] = {duration = 900, buffId = 446}, -- Utsusemi: Ni
 
     -- Elemental debuffs (Burn, Frost, Choke, Rasp, Shock, Drown)
     [235] = {duration = 120}, [236] = {duration = 120},
@@ -124,20 +116,46 @@ local SPELL_DURATIONS = {
     [694] = {duration = 30}, -- Invincible
     [695] = {duration = 30}, -- Blood Weapon
 
-    -- Job abilities with debuffs
-    [22] = {duration = 120, buffId = 13},  -- Energy Drain - Max HP Down
-    [45] = {duration = 30, buffId = 448},  -- Mug - ???
-    [46] = {duration = 6, buffId = 10},    -- Shield Bash - Stun
-    [77] = {duration = 6, buffId = 10},    -- Weapon Bash - Stun
-
     -- Additional effect debuffs
     [2] = {duration = 25, additionalEffect = true},   -- Sleep Bolt
     [149] = {duration = 60, additionalEffect = true}, -- Defense Down/Acid Bolt
     [12] = {duration = 30, additionalEffect = true},  -- Gravity/Mandau
+    [6] = {duration = 60, additionalEffect = true}, -- Silence/Kabura Arrows
+    [10] = {duration = 5, additionalEffect = true}, -- Stun
+    [3] = {duration = 30, additionalEffect = true}, -- Poison/Venom Bolt
+
+    -- spikes effect debuffs
+    [9] = {duration = 180, spikesEffect = true},   -- Iqgira set
 
     -- Special cases
     [1908] = {duration = 60, buffId = 2, type = 13}, -- Nightmare (pet ability)
 };
+
+local WEAPON_SKILL_DURATIONS = {
+    -- Weapon skills with debuffs
+    [181] = {duration = 180, buffId = 149}, -- Shell Crusher - Defense Down
+    [83] = {duration = 180, buffId = 149},  -- Armor Break - Defense Down
+    [87] = {duration = 180, buffIds = {149, 147}}, -- Full Break - Defense Down & Attack Down
+    [155] = {duration = 180, buffId = 149}, -- Tachi: Ageha - Defense Down
+    [187] = {duration = 180, buffId = 149}, -- Garland of Bliss - Defense Down
+    [89] = {duration = 180, buffId = 149},  -- Metatron Torment - Defense Down
+    [85] = {duration = 180, buffId = 147},  -- Weapon Break - Attack Down
+    [185] = {duration = 180, buffId = 147}, -- Gate of Tartarus - Attack Down
+    [107] = {duration = 180, buffId = 147}, -- Infernal Scythe - Attack Down
+    [16] = {duration = 90, buffId = 3},     -- Wasp Sting - Poison
+    [17] = {duration = 90, buffId = 3},     -- Viper Bite - Poison
+    [18] = {duration = 30, buffId = 11},    -- Shadowstitch - Bind
+    [35] = {duration = 5, buffId = 10},     -- Flat Blade - Stun
+    [115] = {duration = 5, buffId = 10},    -- Leg Sweep - Stun
+    [2] = {duration = 5, buffId = 10},      -- Shoulder Tackle - Stun
+    [65] = {duration = 5, buffId = 10},     -- Smash Axe - Stun
+    [162] = {duration = 5, buffId = 10},    -- Brainshaker - Stun
+    [145] = {duration = 5, buffId = 10},    -- Tachi: Hobaku - Stun
+    [80] = {duration = 180, buffId = 148},  -- Shield Break - Evasion Down
+    [73] = {duration = 120, buffId = 146},  -- Onslaught - Accuracy Down
+    [170] = {duration = 120, buffId = 148},  -- Randgrith - Evasion Down
+    [22] = {duration = 210, buffId = 13},   -- Energy Drain - Slow
+}
 
 local PET_ABILITY_DURATIONS = {
     [513] = {duration = 90, buffId = 3, type = 13}, -- ポイズンネイル
@@ -151,10 +169,13 @@ local PET_ABILITY_DURATIONS = {
     [630] = {duration = 12, buffId = 10, type = 13}, -- カオスストライク
     [528] = {duration = 60, buffId = 5, type = 13}, -- ムーンリットチャージ
     [529] = {duration = 60, buffId = 4, type = 13}, -- クレセントファング
+    [530] = {duration = 180, buffIds = {146, 148}, type = 13}, -- ルナークライ
+    [611] = {duration = 90, buffId = 2, type = 13}, -- スリプガ
 
     [3841] = {duration = 120, buffId = 5, type = 11}, -- 土煙
     [3860] = {duration = 45, buffId = 2, type = 11}, -- シープソング
     [3848] = {duration = 120, buffId = 4, type = 11}, -- 咆哮
+    [3843] = {duration = 4, buffId = 10, type = 11}, -- ヘッドバット
     [3844] = {duration = 30, buffId = 2, type = 11}, -- 夢想花
     [3845] = {duration = 112, buffId = 138, type = 11}, -- 種まき
     [3846] = {duration = 18, buffId = 3, type = 11}, -- リーフダガー
@@ -187,6 +208,13 @@ local PET_ABILITY_DURATIONS = {
     [3874] = {duration = 90, buffId = 5, type = 11}, -- ダークスポア
 };
 
+local JOB_ABILITY_DURATIONS = {
+    -- Job abilities with debuffs
+    [45] = {duration = 30, buffId = 448},  -- Mug - ???
+    [46] = {duration = 6, buffId = 10},    -- Shield Bash - Stun
+    [77] = {duration = 6, buffId = 10},    -- Weapon Bash - Stun
+}
+
 local function ApplyMessage(debuffs, action)
 
     if (action == nil) then
@@ -202,18 +230,23 @@ local function ApplyMessage(debuffs, action)
             local spell = action.Param
             local message = ability.Message
             local additionalEffect
+            local spikesEffect
+            local ent = GetEntity(action.UserIndex)
 
             if (ability.AdditionalEffect ~= nil and ability.AdditionalEffect.Message ~= nil) then
                 additionalEffect = ability.AdditionalEffect.Message
+            end
+            if (ability.SpikesEffect ~= nil and ability.SpikesEffect.Message ~= nil) then
+                spikesEffect = ability.SpikesEffect.Message
+
+                if (ent ~= nil and debuffs[ent.ServerId] == nil) then
+                    debuffs[ent.ServerId] = T{};
+                end
             end
 
             if (debuffs[target.Id] == nil) then
                 debuffs[target.Id] = T{};
             end
-
-            -- print(action.Type.. ':'..message)
-            -- print(spell)
-            -- print(message)
 
             -- Handle pet abilities (Type 13)
             if action.Type == 13 and spell == 1908 then
@@ -221,7 +254,7 @@ local function ApplyMessage(debuffs, action)
                 debuffs[target.Id][2] = now + 60
             -- Handle weapon skills (Type 3 with damage message)
             elseif action.Type == 3 and message == 185 then
-                local spellData = SPELL_DURATIONS[spell];
+                local spellData = WEAPON_SKILL_DURATIONS[spell];
                 if spellData then
                     if spellData.buffId then
                         debuffs[target.Id][spellData.buffId] = now + spellData.duration;
@@ -258,6 +291,10 @@ local function ApplyMessage(debuffs, action)
                 end
 
                 local spellData = SPELL_DURATIONS[spell];
+                if action.Type == 13 then
+                    spellData = PET_ABILITY_DURATIONS[spell];
+                end
+
                 if spellData then
                     -- Handle special clear buffs (Sleep II clears Sleep I)
                     if spellData.clearsBuffs then
@@ -265,9 +302,16 @@ local function ApplyMessage(debuffs, action)
                             debuffs[target.Id][clearBuffId] = nil;
                         end
                     end
+
+                    local duration = spellData.duration
+                    if config.createTargetHudOnMobs.addEffectLullaby >= 1 and (spell == 376 or spell == 463) then
+                        local additional = (config.createTargetHudOnMobs.addEffectLullaby * 0.1) + 1
+                        duration = spellData.duration * additional
+                    end
+
                     -- Apply the debuff
                     local finalBuffId = spellData.buffId or buffId;
-                    debuffs[target.Id][finalBuffId] = now + spellData.duration;
+                    debuffs[target.Id][finalBuffId] = now + duration;
                 else
                     -- Unknown status effect - default to 5 minutes
                     debuffs[target.Id][buffId] = now + 300;
@@ -281,7 +325,7 @@ local function ApplyMessage(debuffs, action)
                 end
             -- Handle job abilities with additional effects
             elseif action.Type == 3 and additionalEffectJobAbilities[spell] then
-                local spellData = SPELL_DURATIONS[spell];
+                local spellData = JOB_ABILITY_DURATIONS[spell];
                 if spellData and spellData.buffId and (message == 185 or spell ~= 22) then
                     -- Only apply if not already present or expired
                     if (debuffs[target.Id][spellData.buffId] == nil or debuffs[target.Id][spellData.buffId] < now) then
@@ -301,6 +345,24 @@ local function ApplyMessage(debuffs, action)
                 else
                     -- Default duration for unknown additional effects
                     debuffs[target.Id][buffId] = now + 30;
+                end
+            -- Handle spike effects
+            elseif spikesEffect ~= nil and spikesEffectMes[spikesEffect] then
+                local buffId = ability.SpikesEffect.Param;
+                if (buffId == nil) then
+                    return
+                end
+
+                local spellData = SPELL_DURATIONS[buffId];
+                if spellData and spellData.spikesEffect then
+                    if debuffs[ent.ServerId][buffId] == null or debuffs[ent.ServerId][buffId] < now then
+                        debuffs[ent.ServerId][buffId] = now + spellData.duration;
+                    end
+                else
+                    if debuffs[ent.ServerId][buffId] == null or debuffs[ent.ServerId][buffId] < now then
+                        -- Default duration for unknown spikes effects
+                        debuffs[ent.ServerId][buffId] = now + 300;
+                    end
                 end
             -- Handle monsters abilities
             elseif action.Type == 11 and (message == 185 or message == 242) then
@@ -328,7 +390,7 @@ local function ApplyMessage(debuffs, action)
                     end
                 end
             -- Handle avatar blood pacts
-            elseif action.Type == 13 and message == 317 then
+            elseif action.Type == 13 and (message == 317 or message == 144) then
                 local tmpAbiParam = action.Param
 
                 -- local tpName = AshitaCore:GetResourceManager():GetString('monsters.abilities', tmpAbiParam - 256, 1);
@@ -349,6 +411,10 @@ local function ApplyMessage(debuffs, action)
                             debuffs[target.Id][abiData.buffId] = now + abiData.duration;
                         else
                             debuffs[target.Id][abiData.buffId] = now + 180;
+                        end
+                    elseif abiData.buffIds ~= nil then
+                        for _, buffId in ipairs(abiData.buffIds) do
+                            debuffs[target.Id][buffId] = now + abiData.duration;
                         end
                     end
                 end

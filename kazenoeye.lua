@@ -1,6 +1,6 @@
 addon.name      = 'kazenoeye';
 addon.author    = 'kazenohito';
-addon.version   = '1.2.8';
+addon.version   = '1.3.3';
 addon.desc      = 'Display information about Entity within visible range';
 addon.link      = 'https://github.com/kazenohito/kazenoeye';
 
@@ -20,10 +20,14 @@ local default_settings = T{
         only_mypet = false,
         hp_size = {40, 4},
         hp_font_size = 0.80,
+        hp_font_size2 = 16.0,
         icon_size = 16,
         icon_spacing = 2,
         timer_enable = true,
         timer_size = 0.60,
+        timer_size2 = 14.0,
+        format_min = false,
+        addEffectLullaby = 0,
     },
 };
 local config_lang_resource = T{
@@ -67,12 +71,35 @@ local config_lang_resource = T{
         en = 'TimerSize',
         jp = 'タイマーサイズ',
     },
+    createTargetHudOnMobs_format_min = {
+        en = 'Format Display In Minutes',
+        jp = '分表示に変換',
+    },
+    addEffectLullaby = {
+        en = 'Effect Level Of Lullaby',
+        jp = 'ララバイの効果レベル',
+    },
+    addEffectLullabyHelp = {
+        en = 'Extends the duration display of the Lullaby effect. (+1 for a 10% increase)',
+        jp = 'ララバイの効果時間表示を延長します。(+1で10％)',
+    },
 }
 
-local config = settings.load(default_settings);
+config = settings.load(default_settings);
 local showConfig = { false };
 
 local helpers  = require('helpers');
+
+local function formatTimeMin(sec)
+    local m = math.floor(sec / 60)
+    local s = sec % 60
+
+    if m > 0 then
+        return string.format("%dm", m)
+    else
+        return string.format("%d", s)
+    end
+end
 
 local function isRendererByEntity(entity)
     return (bit.band(entity.Render.Flags0, 0x200) == 0x200);
@@ -158,18 +185,19 @@ local function createTargetHudOnMobs(entities)
             imgui.SetNextWindowBgAlpha(0.4);
             imgui.SetNextWindowPos({xx, yy}, 0, {0.5, 0.5});
             imgui.SetNextWindowSize({
-                32 + config.createTargetHudOnMobs.hp_size[1] + (config.createTargetHudOnMobs.hp_font_size * 40),
+                32 + config.createTargetHudOnMobs.hp_size[1] + (config.createTargetHudOnMobs.hp_font_size2 * 2),
                 24 + config.createTargetHudOnMobs.hp_size[2]
             });
 
-            if (imgui.Begin('TargetHud:' .. entity.index, true, bit.bor(
+            if (imgui.Begin('TargetHud:' .. entity.index, true,bit.bor(
                 ImGuiWindowFlags_AlwaysAutoResize,
                 ImGuiWindowFlags_NoTitleBar,
                 ImGuiWindowFlags_NoBackground,
                 ImGuiWindowFlags_NoScrollbar,
+                ImGuiWindowFlags_NoInputs,
                 ImGuiWindowFlags_NoSavedSettings
             ))) then
-                
+                imgui.PushFont(nil, config.createTargetHudOnMobs.hp_font_size2)
 
                 local x, y = imgui.GetCursorScreenPos();
                 local color = nil;
@@ -182,28 +210,28 @@ local function createTargetHudOnMobs(entities)
 
                 color = imgui.GetColorU32({0,0,0,1});
                 imgui.GetWindowDrawList():AddRectFilled(
-                    {gageRelativePos[1]+x-2, gageRelativePos[2]+y-2},
-                    {gageRelativePos[1]+gageBaseSize[1]+2, gageRelativePos[2]+gageBaseSize[2]+2},
+                    {gageRelativePos[1] + x - 2, gageRelativePos[2] + y - 2},
+                    {gageRelativePos[1] + gageBaseSize[1] + 2, gageRelativePos[2] + gageBaseSize[2] + 2},
                     color,
                     0.5
                 );
 
                 color = imgui.GetColorU32({1,1,1,1});
                 imgui.GetWindowDrawList():AddRectFilled(
-                    {gageRelativePos[1]+x-1, gageRelativePos[2]+y-1},
-                    {gageRelativePos[1]+gageBaseSize[1]+1, gageRelativePos[2]+gageBaseSize[2]+1},
+                    {gageRelativePos[1] + x - 1, gageRelativePos[2] + y - 1},
+                    {gageRelativePos[1] + gageBaseSize[1] + 1, gageRelativePos[2] + gageBaseSize[2] + 1},
                     color,
                     0.5
                 );
 
                 color = imgui.GetColorU32({0,0,0,1});
                 imgui.GetWindowDrawList():AddRectFilled(
-                    {gageRelativePos[1]+x, gageRelativePos[2]+y},
-                    {gageRelativePos[1]+gageBaseSize[1], gageRelativePos[2]+gageBaseSize[2]},
+                    {gageRelativePos[1] + x, gageRelativePos[2] + y},
+                    {gageRelativePos[1] + gageBaseSize[1], gageRelativePos[2] + gageBaseSize[2]},
                     color,
                     0.5
                 );
-
+        
                 if (entity.entity.HPPercent > 0) then
                     if isMobByEntity(entity.entity) then
                         color = imgui.GetColorU32({0.8, 0.2, 0.2, 1});
@@ -212,41 +240,42 @@ local function createTargetHudOnMobs(entities)
                     end
 
                     imgui.GetWindowDrawList():AddRectFilled(
-                        {gageRelativePos[1]+x, gageRelativePos[2]+y},
-                        {
-                            gageRelativePos[1]+x + (config.createTargetHudOnMobs.hp_size[1] * (entity.entity.HPPercent / 100)),
-                            gageRelativePos[2]+gageBaseSize[2]
-                        },
+                        {gageRelativePos[1] + x, gageRelativePos[2] + y},
+                        {gageRelativePos[1] + x + (config.createTargetHudOnMobs.hp_size[1] * (entity.entity.HPPercent / 100)),
+                        gageRelativePos[2] + gageBaseSize[2]},
                         color,
                         0.5
                     );
                 end
 
+                local hpText = '' .. entity.entity.HPPercent .. '%';
+                local hpTextWidth, hpTextHeight = imgui.CalcTextSize(hpText);
                 local fontPos = {
                     config.createTargetHudOnMobs.hp_size[1] + 2,
-                    (config.createTargetHudOnMobs.hp_size[2] / 2) + 1 - (config.createTargetHudOnMobs.hp_font_size * 11),
+                    (config.createTargetHudOnMobs.hp_size[2] / 2) - (hpTextHeight / 2),
                 };
-               local hpText = '' .. entity.entity.HPPercent .. '%'
 
-                color = imgui.GetColorU32({0,0,0,1});
+                color = imgui.GetColorU32({0, 0, 0, 1});
                 imgui.GetWindowDrawList():AddText(
-                {gageRelativePos[1]+x+fontPos[1]+1, gageRelativePos[2]+y+fontPos[2]+1},
-                color,
-                hpText
-            )
+                    {gageRelativePos[1] + x + fontPos[1] + 1, gageRelativePos[2] + y + fontPos[2] + 1},
+                    color,
+                    hpText
+                );
 
                 imgui.GetWindowDrawList():AddText(
-                {gageRelativePos[1]+x+fontPos[1]-1, gageRelativePos[2]+y+fontPos[2]-1},
-                color,
-                hpText
-            )
+                    {gageRelativePos[1] + x + fontPos[1] - 1, gageRelativePos[2] + y + fontPos[2] - 1},
+                    color,
+                    hpText
+                );
 
-                color = imgui.GetColorU32({1,1,1,1});
+                color = imgui.GetColorU32({1, 1, 1, 1});
                 imgui.GetWindowDrawList():AddText(
-                {gageRelativePos[1]+x+fontPos[1], gageRelativePos[2]+y+fontPos[2]},
-                color,
-            hpText
-            )
+                    {gageRelativePos[1] + x + fontPos[1], gageRelativePos[2] + y + fontPos[2]},
+                    color,
+                    hpText
+                );
+
+                imgui.PopFont();
             end
             imgui.End();
 
@@ -259,8 +288,10 @@ local function createTargetHudOnMobs(entities)
                 ImGuiWindowFlags_NoTitleBar,
                 ImGuiWindowFlags_NoBackground,
                 ImGuiWindowFlags_NoScrollbar,
+                ImGuiWindowFlags_NoInputs,
                 ImGuiWindowFlags_NoSavedSettings
             ))) then
+                imgui.PushFont(nil, config.createTargetHudOnMobs.timer_size2)
 
                 local buffIds, buffTimes = debuffHandler.GetActiveDebuffs(entity.entity.ServerId);
 
@@ -287,26 +318,27 @@ local function createTargetHudOnMobs(entities)
                         if config.createTargetHudOnMobs.timer_enable then
                             local timeValue = buffTimes[i];
                             local text = '' .. timeValue;
-                            local textWidth, _ = imgui.CalcTextSize(text);
+
+                            if config.createTargetHudOnMobs.format_min then
+                                text = formatTimeMin(timeValue)
+                            end
+
+                            local textWidth, textHeight = imgui.CalcTextSize(text);
 
                             local text_x = icon_pos_x + ((icon_x - textWidth) * 0.5);
-                            local text_y = icon_pos_y + icon_y + 2;
+                            local text_y = icon_pos_y + icon_y + 2 - (textHeight * 0.2);
 
                             local color = imgui.GetColorU32({1,1,1,1});
 
                             if timeValue < 10 then
-                                color = imgui.GetColorU32({1,0,0,1});
+                                color = imgui.GetColorU32({1,0.3,0.3,1});
                             elseif timeValue < 20 then
                                 color = imgui.GetColorU32({1,1,0,1});
                             end
 
-                            
-
                             imgui.GetWindowDrawList():AddText({text_x + 1, text_y + 1}, imgui.GetColorU32({0,0,0,1}), text);
                             imgui.GetWindowDrawList():AddText({text_x - 1, text_y - 1}, imgui.GetColorU32({0,0,0,1}), text);
                             imgui.GetWindowDrawList():AddText({text_x, text_y}, color, text);
-
-                        
                         end
 
                         if i < #buffIds then
@@ -316,11 +348,14 @@ local function createTargetHudOnMobs(entities)
 
                     imgui.Dummy({1, 20});
                 end
+
+                imgui.PopFont();
             end
 
             imgui.End();
         end
     end
+
 end
 
 function ParseMessagePacket(e)
@@ -571,9 +606,9 @@ function drawConfigWindow()
             config.createTargetHudOnMobs.hp_size = hpSize;
             settings.save();
         end
-        local hpFontSize = {config.createTargetHudOnMobs.hp_font_size}
-        if (imgui.SliderFloat(config_lang_resource.hpFontSize[lang], hpFontSize, 0.10, 1.50)) then
-            config.createTargetHudOnMobs.hp_font_size = hpFontSize[1]
+        local hpFontSize = {config.createTargetHudOnMobs.hp_font_size2}
+        if (imgui.SliderFloat(config_lang_resource.hpFontSize[lang], hpFontSize, 8.0, 36.0, "%.1f")) then
+            config.createTargetHudOnMobs.hp_font_size2 = hpFontSize[1]
             settings.save();
         end
 
@@ -593,11 +628,22 @@ function drawConfigWindow()
             config.createTargetHudOnMobs.timer_enable = createTargetHudOnMobs_timer_enable[1];
             settings.save();
         end
-        local timerSize = {config.createTargetHudOnMobs.timer_size}
-        if (imgui.SliderFloat(config_lang_resource.timerSize[lang], timerSize, 0.10, 1.00)) then
-            config.createTargetHudOnMobs.timer_size = timerSize[1]
+        local timerSize = {config.createTargetHudOnMobs.timer_size2}
+        if (imgui.SliderFloat(config_lang_resource.timerSize[lang], timerSize, 8.0, 36.0, "%0.1f")) then
+            config.createTargetHudOnMobs.timer_size2 = timerSize[1]
             settings.save();
         end
+        local createTargetHudOnMobs_format_min = {config.createTargetHudOnMobs.format_min};
+        if (imgui.Checkbox(config_lang_resource.createTargetHudOnMobs_format_min[lang], createTargetHudOnMobs_format_min)) then
+            config.createTargetHudOnMobs.format_min = createTargetHudOnMobs_format_min[1];
+            settings.save();
+        end
+        local addEffectLullaby = {config.createTargetHudOnMobs.addEffectLullaby}
+        if (imgui.SliderInt(config_lang_resource.addEffectLullaby[lang], addEffectLullaby, 0, 2)) then
+            config.createTargetHudOnMobs.addEffectLullaby = addEffectLullaby[1]
+            settings.save();
+        end
+        imgui.ShowHelp(config_lang_resource.addEffectLullabyHelp[lang]);
     end
     imgui.End();
 end
