@@ -1,6 +1,5 @@
 local texture = {}
 
--- require('common');
 local imgui = require('imgui');
 local ffi = require('ffi');
 local C = ffi.C;
@@ -8,10 +7,6 @@ local d3d = require('d3d8');
 local d3d8dev   = d3d.get_device();
 
 local images = {};
-
--- texture.test = function()
---     print('hoge');
--- end
 
 texture.loadImage = function(element, path)
     -- Only load if the image isn't already loaded
@@ -25,6 +20,10 @@ texture.loadImage = function(element, path)
 	images[element]["width"] = width
 	images[element]["height"] = height
 	images[element]["texture"] = createTexture(path);
+end
+
+texture.getImage = function(element)
+	return images[element]
 end
 
 function getImageDimensions(path)

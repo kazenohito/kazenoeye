@@ -2,7 +2,7 @@ local d3d8dev        = require('d3d8').get_device();
 local ffi            = require('ffi');
 local C              = ffi.C;
 
-local helpers        = require('helpers');
+local helpers        = require('util.helpers');
 local rotateVector16 = helpers.rotateVector16;
 local normalize      = helpers.normalize;
 local matrixMultiply = helpers.matrixMultiply;
@@ -11,11 +11,10 @@ local worldToScreen  = helpers.worldToScreen;
 local width          = helpers.width;
 local height         = helpers.height;
 
-local Bezier3D_2     = require('Bezier3D_2');
+local Bezier3D_2     = require('util.Bezier3D_2');
 
 local screenPosition = {};
 
---debug
 screenPosition.getScreenPosition = function(x1, y1, z1)
     local x2, z2, y2 = x1, z1, y1
 
@@ -105,6 +104,21 @@ screenPosition.getScreenPosition = function(x1, y1, z1)
     });
 
     return P0x,P0y
+end
+
+screenPosition.getScreenDoorPosition = function(tx, ty, tz)
+    local x = nil
+    local y = nil
+    local ndcZ = nil
+
+    -- Get the transformation matrices for the scene
+    local _, view = d3d8dev:GetTransform(C.D3DTS_VIEW)
+    local _, projection = d3d8dev:GetTransform(C.D3DTS_PROJECTION)
+
+    -- Get screen coordinates for our nameplate
+    x, y, ndcZ = worldToScreen(tx, tz, ty, view, projection)
+
+    return x, y, ndcZ
 end
 
 return screenPosition;

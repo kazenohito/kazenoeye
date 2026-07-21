@@ -84,6 +84,30 @@ local function getBone(actorPointer, bone)
         z + ashita.memory.read_float(generatorsAddress + (bone * 0x1A) + 0x0E + 0x4)
 end
 
+local function getBoneHalf(actorPointer, bone)
+    local x = ashita.memory.read_float(actorPointer + 0x678);
+    local y = ashita.memory.read_float(actorPointer + 0x680);
+    local z = ashita.memory.read_float(actorPointer + 0x67C);
+
+    local skeletonBaseAddress = ashita.memory.read_uint32(actorPointer + 0x6B8);
+
+    local skeletonOffsetAddress = ashita.memory.read_uint32(skeletonBaseAddress + 0x0C);
+
+    local skeletonAddress = ashita.memory.read_uint32(skeletonOffsetAddress);
+
+    local boneCount = ashita.memory.read_uint16(skeletonAddress + 0x32);
+
+    local bufferPointer = skeletonAddress + 0x30;
+    local skeletonSize = 0x04;
+    local boneSize = 0x1E;
+
+    local generatorsAddress = bufferPointer + skeletonSize + boneSize * boneCount + 4;
+
+    return x + ashita.memory.read_float(generatorsAddress + (bone * 0x1A) + 0x0E + 0x0),
+        y + ashita.memory.read_float(generatorsAddress + (bone * 0x1A) + 0x0E + 0x8),
+        z + ashita.memory.read_float(generatorsAddress + (bone * 0x1A) + 0x0E + 0x4) / 2
+end
+
 local function normalize(vec3)
     local u = (vec3[1] ^ 2 + vec3[2] ^ 2 + vec3[3] ^ 2) ^ (-0.5);
     return { vec3[1] * u, vec3[2] * u, vec3[3] * u };
@@ -135,6 +159,7 @@ return {
     vec4Transform = vec4Transform,
     worldToScreen = worldToScreen,
     getBone = getBone,
+    getBoneHalf = getBoneHalf,
     normalize = normalize,
     getTexture = getTexture,
     rotateVector16 = rotateVector16,
