@@ -485,6 +485,10 @@ debuffHandler.GetActiveDebuffs = function(serverId)
             count = count + 1;
             reusableDebuffIds[count] = buffId;
             reusableDebuffTimes[count] = expiryTime - currentTime;
+        elseif (expiryTime ~= 0 and (expiryTime - currentTime) >= -3) then
+            count = count + 1;
+            reusableDebuffIds[count] = buffId;
+            reusableDebuffTimes[count] = 0;
         end
     end
 
