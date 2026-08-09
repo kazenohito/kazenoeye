@@ -131,7 +131,7 @@ end
 
 local function drawTargetInfo(entity, color)
     local x, y = entity.PosX, entity.PosY
-    imgui.SetWindowFontScale(config.createTargetMarker.info_size + 0.2);
+    imgui.PushFont(nil, config.createTargetMarker.info_size2)
 
     -- Dist
     local text_dist = "" .. entity.Dist;
@@ -150,6 +150,8 @@ local function drawTargetInfo(entity, color)
     imgui.GetWindowDrawList():AddText({x - 22 - xx + 1, y - (yy / 2) - 1}, imgui.GetColorU32({0, 0, 0, color[4]}), text_name)
     imgui.GetWindowDrawList():AddText({x - 22 - xx - 1, y - (yy / 2) + 1}, imgui.GetColorU32({0, 0, 0, color[4]}), text_name)
     imgui.GetWindowDrawList():AddText({x - 22 - xx, y - (yy / 2)}, imgui.GetColorU32(color), text_name)
+
+    imgui.PopFont();
 end
 
 local function createTargetMarker()

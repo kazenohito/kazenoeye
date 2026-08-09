@@ -1,6 +1,6 @@
 addon.name      = 'kazenoeye';
 addon.author    = 'kazenohito';
-addon.version   = '1.4.5';
+addon.version   = '1.5.0';
 addon.desc      = 'Display information about Entity within visible range';
 addon.link      = 'https://github.com/kazenohito/kazenoeye';
 

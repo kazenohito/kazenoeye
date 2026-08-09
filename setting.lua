@@ -12,10 +12,12 @@ local default_settings = T{
         only_mypet = false,
         hp_size = {40, 4},
         hp_font_size = 0.80,
+        hp_font_size2 = 16.0,
         icon_size = 16,
         icon_spacing = 2,
         timer_enable = true,
         timer_size = 0.60,
+        timer_size2 = 14.0,
         format_min = false,
         addEffectLullaby = 0,
     },
@@ -23,6 +25,7 @@ local default_settings = T{
         enable = false,
         info_enable = true,
         info_size = 1.0,
+        info_size2 = 24,
         color = {
             pc = {1, 1, 1, 1},
             npc = {0.6, 1, 0.6, 1},
@@ -164,9 +167,9 @@ local function drawSettingWindow()
                     config.createTargetHudOnMobs.hp_size = hpSize;
                     settings.save();
                 end
-                local hpFontSize = {config.createTargetHudOnMobs.hp_font_size}
-                if (imgui.SliderFloat(config_lang_resource.hpFontSize[lang], hpFontSize, 0.10, 1.50)) then
-                    config.createTargetHudOnMobs.hp_font_size = hpFontSize[1]
+                local hpFontSize = {config.createTargetHudOnMobs.hp_font_size2}
+                if (imgui.SliderFloat(config_lang_resource.hpFontSize[lang], hpFontSize, 8.0, 36.0, "%.1f")) then
+                    config.createTargetHudOnMobs.hp_font_size2 = hpFontSize[1]
                     settings.save();
                 end
 
@@ -186,9 +189,9 @@ local function drawSettingWindow()
                     config.createTargetHudOnMobs.timer_enable = createTargetHudOnMobs_timer_enable[1];
                     settings.save();
                 end
-                local timerSize = {config.createTargetHudOnMobs.timer_size}
-                if (imgui.SliderFloat(config_lang_resource.timerSize[lang], timerSize, 0.10, 1.00)) then
-                    config.createTargetHudOnMobs.timer_size = timerSize[1]
+                local timerSize = {config.createTargetHudOnMobs.timer_size2}
+                if (imgui.SliderFloat(config_lang_resource.timerSize[lang], timerSize, 8.0, 36.0, "%0.1f")) then
+                    config.createTargetHudOnMobs.timer_size2 = timerSize[1]
                     settings.save();
                 end
                 local createTargetHudOnMobs_format_min = {config.createTargetHudOnMobs.format_min};
@@ -221,9 +224,9 @@ local function drawSettingWindow()
                     settings.save();
                 end
 
-                local createTargetMarker_info_size = {config.createTargetMarker.info_size}
-                if (imgui.SliderFloat(config_lang_resource.createTargetMarker_info_size[lang], createTargetMarker_info_size, 0.50, 2.00)) then
-                    config.createTargetMarker.info_size = createTargetMarker_info_size[1]
+                local createTargetMarker_info_size = {config.createTargetMarker.info_size2}
+                if (imgui.SliderFloat(config_lang_resource.createTargetMarker_info_size[lang], createTargetMarker_info_size, 8.0, 36.0, "%0.1f")) then
+                    config.createTargetMarker.info_size2 = createTargetMarker_info_size[1]
                     settings.save();
                 end
 
