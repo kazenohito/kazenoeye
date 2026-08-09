@@ -1,5 +1,5 @@
 # kazenoeye
-This is an add-on that works with Ashita v4.16.
+This is an add-on that works with Ashita v4.30.
 It adds a UI to display the status of mobs and displays it in front of the model.
 
 ![screenshot](https://github.com/kazenohito/kazenoeye/blob/main/sample2.png)
@@ -8,10 +8,6 @@ It adds a UI to display the status of mobs and displays it in front of the model
 ## Note
 This add-on has been customized specifically for the HorizonXI server environment.
 Please note that accurate functionality on retail servers or other private servers cannot be guaranteed.
-
-## Ashita v4.30 Support
-Support for the 4.30 branch has been committed.
-This version is still being tested. Some features may not be available, and bugs may exist.
 
 ## How to install:
 - Please download the latest version from the release page.
