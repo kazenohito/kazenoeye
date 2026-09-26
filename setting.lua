@@ -21,21 +21,6 @@ local default_settings = T{
         format_min = false,
         addEffectLullaby = 0,
     },
-    createTargetMarker = T{
-        enable = false,
-        info_enable = true,
-        info_size = 1.0,
-        info_size2 = 24,
-        color = {
-            pc = {1, 1, 1, 1},
-            npc = {0.6, 1, 0.6, 1},
-            mob_default = {1.0, 1.0, 0.6, 1.0},
-            mob_battle = {1.0, 0.6, 0.6, 1.0},
-        },
-        animation = {
-            movement_duration = 0.5
-        },
-    },
 };
 local config_lang_resource = T{
     createTargetHudOnMobs = {
@@ -89,42 +74,6 @@ local config_lang_resource = T{
     addEffectLullabyHelp = {
         en = 'Extends the duration display of the Lullaby effect. (+1 for a 10% increase)',
         jp = 'ララバイの効果時間表示を延長します。(+1で10％)',
-    },
-    createTargetMarker = {
-        en = 'Target Marker',
-        jp = 'ターゲットマーカー',
-    },
-    createTargetMarker_enable = {
-        en = 'Enable Target Marker',
-        jp = 'ターゲットマーカー 有効',
-    },
-    createTargetMarker_info_enable = {
-        en = 'Enable Information',
-        jp = '情報表示 有効',
-    },
-    createTargetMarker_info_size = {
-        en = 'FontSize',
-        jp = 'フォントサイズ',
-    },
-    createTargetMarker_color_pc = {
-        en = 'PC',
-        jp = 'PC',
-    },
-    createTargetMarker_color_npc = {
-        en = 'NPC',
-        jp = 'NPC',
-    },
-    createTargetMarker_color_mob_default = {
-        en = 'MOB(Default)',
-        jp = 'MOB(非戦闘状態)',
-    },
-    createTargetMarker_color_mob_battle = {
-        en = 'MOB(Battle)',
-        jp = 'MOB(戦闘状態)',
-    },
-    createTargetMarker_animation_movement_duration = {
-        en = 'Movement Dration',
-        jp = 'マーカーの移動間隔',
     },
 }
 
@@ -209,48 +158,6 @@ local function drawSettingWindow()
                 imgui.EndTabItem()
             end
 
-            if (imgui.BeginTabItem("Target Marker", nil)) then
-                imgui.Text(config_lang_resource.createTargetMarker[lang]);
-
-                local createTargetMarker_enable = {config.createTargetMarker.enable};
-                if (imgui.Checkbox(config_lang_resource.createTargetMarker_enable[lang], createTargetMarker_enable)) then
-                    config.createTargetMarker.enable = createTargetMarker_enable[1];
-                    settings.save();
-                end
-
-                local createTargetMarker_info_enable = {config.createTargetMarker.info_enable};
-                if (imgui.Checkbox(config_lang_resource.createTargetMarker_info_enable[lang], createTargetMarker_info_enable)) then
-                    config.createTargetMarker.info_enable = createTargetMarker_info_enable[1];
-                    settings.save();
-                end
-
-                local createTargetMarker_info_size = {config.createTargetMarker.info_size2}
-                if (imgui.SliderFloat(config_lang_resource.createTargetMarker_info_size[lang], createTargetMarker_info_size, 8.0, 36.0, "%0.1f")) then
-                    config.createTargetMarker.info_size2 = createTargetMarker_info_size[1]
-                    settings.save();
-                end
-
-                if (imgui.ColorEdit4(config_lang_resource.createTargetMarker_color_pc[lang], config.createTargetMarker.color.pc, ImGuiColorEditFlags_NoAlpha)) then
-                    settings.save()
-                end
-                if (imgui.ColorEdit4(config_lang_resource.createTargetMarker_color_npc[lang], config.createTargetMarker.color.npc, ImGuiColorEditFlags_NoAlpha)) then
-                    settings.save()
-                end
-                if (imgui.ColorEdit4(config_lang_resource.createTargetMarker_color_mob_default[lang], config.createTargetMarker.color.mob_default, ImGuiColorEditFlags_NoAlpha)) then
-                    settings.save()
-                end
-                if (imgui.ColorEdit4(config_lang_resource.createTargetMarker_color_mob_battle[lang], config.createTargetMarker.color.mob_battle, ImGuiColorEditFlags_NoAlpha)) then
-                    settings.save()
-                end
-
-                local movementDuration = {config.createTargetMarker.animation.movement_duration}
-                if (imgui.SliderFloat(config_lang_resource.createTargetMarker_animation_movement_duration[lang], movementDuration, 0.00, 2.00, "%0.2f")) then
-                    config.createTargetMarker.animation.movement_duration = movementDuration[1]
-                    settings.save();
-                end
-
-                imgui.EndTabItem()
-            end
         end
         imgui.EndTabBar();
     end
