@@ -829,9 +829,9 @@ local PET_ABILITY_DURATIONS = {
     -- Omega
     [1235] = {duration = 30, buffId = 11, type = 11}, -- パイルピッチ
     [1533] = {duration = 30, buffId = 11, type = 11}, -- パイルピッチ
-    [1237] = {duration = 15, buffIds = 11, type = 11}, -- ハイパーパルス
-    [1529] = {duration = 15, buffIds = 11, type = 11}, -- ハイパーパルス
-    [1535] = {duration = 15, buffIds = 11, type = 11}, -- ハイパーパルス
+    [1237] = {duration = 15, buffId = 11, type = 11}, -- ハイパーパルス
+    [1529] = {duration = 15, buffId = 11, type = 11}, -- ハイパーパルス
+    [1535] = {duration = 15, buffId = 11, type = 11}, -- ハイパーパルス
     [1239] = {duration = 60, buffIds = {152, 38}, type = 11}, -- ディスチャージャー
     [1537] = {duration = 60, buffIds = {152, 38}, type = 11}, -- ディスチャージャー
     [1240] = {duration = 180, buffId = 4, type = 11}, -- イオンエフラクス
