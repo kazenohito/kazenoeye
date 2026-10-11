@@ -1228,7 +1228,20 @@ local function ApplyMessage(debuffs, action)
 
             -- Handle TH tag
             if config.createTargetHudOnMobs.add_effect_of_th_tag and action.Type ~= 8 and thPlayerServerIds[action.UserId] then
-                debuffs[target.Id][1001] = now + 599
+                -- 「あやつる成功時」「たたかえ」「みやぶる」「なだめる」は対象外
+                if action.Type == 6 and spell == 52 and message == 136 then
+                    if debuffs[target.Id][1001] and debuffs[target.Id][1001] >= now then
+                        debuffs[target.Id][1001] = now
+                    end
+                elseif action.Type == 6 and spell == 53 then
+                    -- nothing
+                elseif action.Type == 6 and spell == 54 then
+                    -- nothing
+                elseif action.Type == 6 and spell == 69 then
+                    -- nothing
+                else
+                    debuffs[target.Id][1001] = now + 599
+                end
             end
 
             -- Handle pet abilities (Type 13)
