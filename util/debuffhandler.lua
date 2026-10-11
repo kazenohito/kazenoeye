@@ -471,6 +471,23 @@ local PET_ABILITY_DURATIONS = {
     [1623] = {duration = 60, buffId = 3, type = 11}, -- 毒液
     [2231] = {duration = 60, buffId = 3, type = 11}, -- 毒液
     [3881] = {duration = 60, buffId = 3, type = 11}, -- 毒液
+    -- Scorpion
+    [355] = {duration = 180, buffId = 137, type = 11}, -- アースパウンダー
+    [351] = {duration = 60, buffId = 3, type = 11}, -- ポイズンスティング
+    [2230] = {duration = 60, buffId = 3, type = 11}, -- ポイズンスティング
+    [348] = {duration = 180, buffId = 4, type = 11}, -- ナムブレス
+    [349] = {duration = 60, buffId = 11, type = 11}, -- コールドブレス
+    [356] = {duration = 180, buffId = 91, type = 11}, -- シャープストライク
+    [723] = {duration = 10, buffId = 10, type = 11}, -- アースブレイカー
+    [3450] = {duration = 10, buffId = 10, type = 11}, -- アースブレイカー
+    [722] = {duration = 60, buffId = 3, type = 11}, -- ベノムストーム
+    [3476] = {duration = 60, buffId = 3, type = 11}, -- ベノムストーム
+    [720] = {duration = 30, buffId = 3, type = 11}, -- ベノムスティング
+    [3477] = {duration = 30, buffId = 3, type = 11}, -- ベノムスティング
+    [724] = {duration = 180, buffId = 92, type = 11}, -- エヴァージョン
+    [721] = {duration = 20, buffId = 4, type = 11}, -- ステーシス
+    [717] = {duration = 60, buffId = 3, type = 11}, -- ベノムブレス
+    [3478] = {duration = 60, buffId = 3, type = 11}, -- ベノムブレス
     -- Spider
     [812] = {duration = 90, buffId = 13, type = 11}, -- スパイダーウェブ
     [961] = {duration = 90, buffId = 13, type = 11}, -- スパイダーウェブ
@@ -999,7 +1016,7 @@ local PET_ABILITY_DURATIONS = {
     [1233] = {duration = 180, buffId = 92, type = 11}, -- マテリアルフェンド
     [1232] = {duration = 120, buffIds = {12, 13}, type = 11}, -- マルク
     -- Aern
-    [1380] = {duration = 60, buffIds = {10, 93}, type = 11}, -- インパクトストリーム
+    [1380] = {duration = 60, buffIds = {10, 149}, type = 11}, -- インパクトストリーム
     [1378] = {duration = 60, buffId = 13, type = 11}, -- ウィングスラスト
     [1379] = {duration = 120, buffId = 6, type = 11}, -- オーロラルウインド
     [1382] = {duration = 120, buffIds = {40, 41}, type = 11}, -- クリスタリンコクーン
@@ -1129,6 +1146,8 @@ local AVATAR_BLOODPACTS_DURATIONS = {
     [611] = {duration = 90, buffId = 2, type = 13}, -- スリプガ
 }
 
+local thPlayerServerIds = {}
+
 local function GetCurrentEquip(slot)
     local equippedItem = AshitaCore:GetMemoryManager():GetInventory():GetEquippedItem(slot - 1);
     local index = bit.band(equippedItem.Index, 0x00FF);
@@ -1146,7 +1165,23 @@ local function GetCurrentEquip(slot)
     return eqEntry;
 end
 
+local function SetTHPlayerIds()
+    local party = AshitaCore:GetMemoryManager():GetParty();
+    thPlayerServerIds = {};
+    for i = 0, 17 do
+        if (party:GetMemberIsActive(i) == 1) then
+            local serverId = party:GetMemberServerId(i);
+            local mainJob = party:GetMemberMainJob(i);
+            -- Main Job THF
+            if serverId ~= 0 and mainJob == 6 then
+                thPlayerServerIds[serverId] = true;
+            end
+        end
+    end
+end
+
 local function ApplyMessage(debuffs, action)
+    SetTHPlayerIds()
 
     if (action == nil) then
         return;
@@ -1189,6 +1224,11 @@ local function ApplyMessage(debuffs, action)
 
             if (debuffs[target.Id] == nil) then
                 debuffs[target.Id] = T{};
+            end
+
+            -- Handle TH tag
+            if config.createTargetHudOnMobs.add_effect_of_th_tag and action.Type ~= 8 and thPlayerServerIds[action.UserId] then
+                debuffs[target.Id][1001] = now + 599
             end
 
             -- Handle pet abilities (Type 13)

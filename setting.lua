@@ -20,6 +20,7 @@ local default_settings = T{
         timer_size2 = 14.0,
         format_min = false,
         addEffectLullaby = 0,
+        add_effect_of_th_tag = false,
     },
 };
 local config_lang_resource = T{
@@ -74,6 +75,10 @@ local config_lang_resource = T{
     addEffectLullabyHelp = {
         en = 'Extends the duration display of the Lullaby effect. (+1 for a 10% increase)',
         jp = 'ララバイの効果時間表示を延長します。(+1で10％)',
+    },
+    addEffectOfTHTag = {
+        en = 'Enable The TH Tagging Icon',
+        jp = 'THタグ付けアイコンを有効にする',
     },
 }
 
@@ -154,6 +159,12 @@ local function drawSettingWindow()
                     settings.save();
                 end
                 imgui.ShowHelp(config_lang_resource.addEffectLullabyHelp[lang]);
+
+                local createTargetHudOnMobs_add_effect_of_th_tag = {config.createTargetHudOnMobs.add_effect_of_th_tag};
+                if (imgui.Checkbox(config_lang_resource.addEffectOfTHTag[lang], createTargetHudOnMobs_add_effect_of_th_tag)) then
+                    config.createTargetHudOnMobs.add_effect_of_th_tag = createTargetHudOnMobs_add_effect_of_th_tag[1];
+                    settings.save();
+                end
 
                 imgui.EndTabItem()
             end
