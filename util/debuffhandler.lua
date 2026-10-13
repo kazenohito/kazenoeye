@@ -1230,9 +1230,7 @@ local function ApplyMessage(debuffs, action)
             if config.createTargetHudOnMobs.add_effect_of_th_tag and action.Type ~= 8 and thPlayerServerIds[action.UserId] then
                 -- 「あやつる成功時」「たたかえ」「みやぶる」「なだめる」は対象外
                 if action.Type == 6 and spell == 52 and message == 136 then
-                    if debuffs[target.Id][1001] and debuffs[target.Id][1001] >= now then
-                        debuffs[target.Id][1001] = now
-                    end
+                    -- nothing
                 elseif action.Type == 6 and spell == 53 then
                     -- nothing
                 elseif action.Type == 6 and spell == 54 then
@@ -1544,6 +1542,16 @@ debuffHandler.GetActiveDebuffs = function(serverId)
     end
 
     return reusableDebuffIds, reusableDebuffTimes;
+end
+
+debuffHandler.HandleUpdateEntity = function(entity, newClaimId)
+    if (debuffHandler.enemies[entity.ServerId] == nil or newClaimId == nil) then
+        return nil
+    end
+
+    if (newClaimId == 0 and debuffHandler.enemies[entity.ServerId][1001] ~= nil) then
+        debuffHandler.enemies[entity.ServerId][1001] = nil
+    end
 end
 
 return debuffHandler;

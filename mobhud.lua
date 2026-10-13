@@ -205,7 +205,7 @@ local function createTargetHudOnMobs()
                                 texture.drawTexture(iconName, {icon_x, icon_y})
                             end
 
-                            if config.createTargetHudOnMobs.timer_enable then
+                            if config.createTargetHudOnMobs.timer_enable and v < 1000 then
                                 local timeValue = buffTimes[i];
                                 local text = '' .. timeValue;
 
@@ -375,6 +375,15 @@ ashita.events.register('packet_in', 'mobhud_packet_in_cb', function (e)
 		if (messagePacket) then
 			debuffHandler.HandleMessagePacket(messagePacket);
 		end
+    elseif (e.id == 0x00E) then
+        local entity = GetEntity(struct.unpack('H', e.data, 0x08 + 1))
+        local newClaimId = nil
+        if (bit.band(struct.unpack('B', e.data, 0x0A + 1), 0x02) == 0x02) then
+            newClaimId = struct.unpack('L', e.data, 0x2C + 1);
+        end
+        if (entity ~= nil) then
+            debuffHandler.HandleUpdateEntity(entity, newClaimId);
+        end
 	end
 end);
 
