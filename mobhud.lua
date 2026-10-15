@@ -377,12 +377,12 @@ ashita.events.register('packet_in', 'mobhud_packet_in_cb', function (e)
 		end
     elseif (e.id == 0x00E) then
         local entity = GetEntity(struct.unpack('H', e.data, 0x08 + 1))
-        local newClaimId = nil
-        if (bit.band(struct.unpack('B', e.data, 0x0A + 1), 0x02) == 0x02) then
-            newClaimId = struct.unpack('L', e.data, 0x2C + 1);
+        local status = nil
+        if (bit.band(struct.unpack('B', e.data, 0x0A + 1), 0x04) == 0x04) then
+            status = struct.unpack('B', e.data, 0x1F + 1)
         end
         if (entity ~= nil) then
-            debuffHandler.HandleUpdateEntity(entity, newClaimId);
+            debuffHandler.HandleUpdateEntity(entity, status);
         end
 	end
 end);

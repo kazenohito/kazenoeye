@@ -1544,12 +1544,12 @@ debuffHandler.GetActiveDebuffs = function(serverId)
     return reusableDebuffIds, reusableDebuffTimes;
 end
 
-debuffHandler.HandleUpdateEntity = function(entity, newClaimId)
-    if (debuffHandler.enemies[entity.ServerId] == nil or newClaimId == nil) then
+debuffHandler.HandleUpdateEntity = function(entity, status)
+    if (debuffHandler.enemies[entity.ServerId] == nil or status == nil) then
         return nil
     end
 
-    if (newClaimId == 0 and debuffHandler.enemies[entity.ServerId][1001] ~= nil) then
+    if (status == 0 and debuffHandler.enemies[entity.ServerId][1001] ~= nil) then
         debuffHandler.enemies[entity.ServerId][1001] = nil
     end
 end
